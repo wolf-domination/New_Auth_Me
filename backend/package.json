@@ -4,7 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "sequelize": "sequelize",
+    "sequelize-cli": "sequelize-cli",
+    "start": "per-env",
+    "start:development": "nodemon ./bin/www",
+    "start:production": "node ./bin/www",
+    "build": "node psql-setup-script.js"
   },
   "keywords": [],
   "author": "",
@@ -21,6 +26,13 @@
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
     "per-env": "^1.0.2",
-    "sequelize": "^6.37.5"
+    "pg": "^8.13.3",
+    "sequelize": "^6.37.5",
+    "sequelize-cli": "^6.6.2"
+  },
+  "devDependencies": {
+    "dotenv-cli": "^8.0.0",
+    "nodemon": "^3.1.9",
+    "sqlite3": "^5.1.7"
   }
 }
