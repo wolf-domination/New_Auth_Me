@@ -1,6 +1,43 @@
 
 
-cd into backend
-Run this command 'npm install cookie-parser && npm install cors && npm install csurf && npm install dotenv && npm install express && npm install express-async-errors && npm install helmet && npm install jsonwebtoken && npm install morgan && npm install per-env && npm install sequelize && npm install sequelize-cli && npm install pg && npm install -D sqlite3 && npm install -D dotenv-cli && npm install -D nodemon' 
+cd into backend run 'cd backend' in the terminal.
+Run this command 'npm install cookie-parser && npm install cors && npm install csurf && npm install dotenv && npm install express && npm install express-async-errors && npm install helmet && npm install jsonwebtoken && npm install morgan && npm install per-env && npm install sequelize && npm install sequelize-cli && npm install pg && npm install -D sqlite3 && npm install -D dotenv-cli && npm install -D nodemon && npm install bcrypt js && npx sequelize model:generate --name User --attributes username:string,email:string,hashedPassword:string' 
 in the terminal.
 Then run 'npm start' in the terminal.
+
+This is just my chicken scratch below don't pay attention to it.
+
+Additional commands 'npx sequelize db:migrate' 'npx dotenv sequelize db:migrate' 'npx sequelize db:seed:all'
+
+'jordanpierson@Jordans-MacBook-Air backend % sqlite3 db/dev.db
+SQLite version 3.48.0 2025-01-14 11:05:00
+Enter ".help" for usage hints.
+sqlite> CREATE TABLE IF NOT EXISTS SequelizeMeta (
+  name TEXT PRIMARY KEY
+);
+sqlite> CREATE TABLE IF NOT EXISTS Users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  username TEXT NOT NULL,
+  email TEXT NOT NULL UNIQUE,
+  password TEXT NOT NULL
+);
+sqlite> .tables
+SequelizeMeta  Users        
+sqlite> '
+
+'npx sequelize seed:generate --name demo-user'
+'npx dotenv sequelize db:seed all'
+
+'jordanpierson@Jordans-MacBook-Air backend % sqlite3 db/dev.db                           
+SQLite version 3.48.0 2025-01-14 11:05:00
+Enter ".help" for usage hints.
+sqlite> SELECT * FROM Users;
+sqlite> INSERT INTO Users (username, email, password)
+VALUES ('testuser1', 'testuser1@example.com', 'password123'),
+       ('testuser2', 'testuser2@example.com', 'password456');
+sqlite> SELECT * FROM Users;
+1|testuser1|testuser1@example.com|password123
+2|testuser2|testuser2@example.com|password456
+sqlite> '
+
+'npm install bcryptjs'

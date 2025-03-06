@@ -27,3 +27,12 @@ module.exports = {
     }
   }
 };
+
+//New stuff below.
+module.exports = {
+  development: {
+    dialect: 'sqlite',
+    storage: './db/dev.db',
+  },
+  // other environments (production, test)...
+};
