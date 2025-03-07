@@ -1,5 +1,12 @@
 
 
+
+Note: The .env file dissapears everytime this project is downloaded from the repository.  Add this to it 'JWT_SECRET=your-secret-key-here
+JWT_EXPIRES_IN=1h  # Or any duration you need
+DB_FILE=./db/dev.db' better yet 'JWT_SECRET=mySuperSecretKey123!
+JWT_EXPIRES_IN=1h
+DB_FILE=./db/dev.db'
+
 cd into backend run 'cd backend' in the terminal.
 Run this command 'npm install cookie-parser && npm install cors && npm install csurf && npm install dotenv && npm install express && npm install express-async-errors && npm install helmet && npm install jsonwebtoken && npm install morgan && npm install per-env && npm install sequelize && npm install sequelize-cli && npm install pg && npm install -D sqlite3 && npm install -D dotenv-cli && npm install -D nodemon && npm install bcrypt js && npx sequelize model:generate --name User --attributes username:string,email:string,hashedPassword:string' 
 in the terminal.
@@ -40,4 +47,4 @@ sqlite> SELECT * FROM Users;
 2|testuser2|testuser2@example.com|password456
 sqlite> '
 
-'npm install bcryptjs'
+'npm install bcryptjs'  'npx sequelize-cli db:migrate' 'sudo tail -n 50 /usr/local/var/mysql/$(hostname).err' 'sudo kill -9 <process_id>'
