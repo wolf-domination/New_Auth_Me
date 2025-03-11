@@ -1,519 +1,398 @@
 
 
 
-# Phase 5: Validating the Request Body
 
-Before using the information in the body of the request, it's good practice to
-validate the information.
+# Authenticate Me - Deploying your Express Project to Render
 
-You will use a package, `express-validator`, to validate the body of the
-requests for routes that expect a request body. The `express-validator` package
-has two functions, `check` and `validationResult` that are used together to
-validate the request body. `check` is a middleware function creator that
-checks a particular key on the request body. `validationResult` gathers the
-results of all the `check` middlewares that were run to determine which parts of
-the body are valid and invalid.
+Render is a web application for deploying fullstack applications. The free tier
+allows you to create a database instance to store database schemas and tables
+for multiple applications, as well as host web services (such as APIs) and
+static sites.
 
-## Validate Login Inputs Git Feature Branch
+Before you begin deploying, **make sure to remove any `console.log`s or
+`debugger`s in any production code**. You can search your entire project folder
+to see if you are using them anywhere by clicking on the magnifying glass icon
+on the top left sidebar of VSCode.
 
-Checkout the `dev` branch and make a new feature branch called
-`validate-login-inputs` from the `dev` branch.
+In the following phases, you will configure the Postgres database for production
+and configure scripts for building and starting the Express production server.
+
+## Best Deployment Practices
+
+For this project, you can set Render to auto-deploy your backend every time you
+complete a feature! Essentially, anytime you merge a feature branch into the
+development branch.
+
+To do this, merge the `dev` branch into the `main` branch.
+
+First, checkout the `main` branch:
 
 ```bash
-git checkout dev
-git checkout -b validate-login-inputs
+git checkout main
 ```
 
-You will be making commits for adding user input validation on user login
-requests to the backend server.
+Then, make sure you have the latest changes in the `main` branch (production
+branch) from your remote repository in your local repository (this is useful
+when collaborating with other developers):
 
-## Dependencies
-
-Run `npm install express-validator` to install the dependency that you will use
-to validate user input from request bodies.
-
-## Validation Middleware
-
-In the `backend/utils` folder, add a file called `validation.js`. In this file,
-define an Express middleware called `handleValidationErrors` that will call
-`validationResult` from the `express-validator` package passing in the request.
-If there are no validation errors returned from the `validationResult` function,
-invoke the next middleware. If there are validation errors, create an error
-with all the validation error messages and invoke the next error-handling
-middleware.
-
-```js
-// backend/utils/validation.js
-const { validationResult } = require('express-validator');
-
-// middleware for formatting errors from express-validator middleware
-// (to customize, see express-validator's documentation)
-const handleValidationErrors = (req, _res, next) => {
-  const validationErrors = validationResult(req);
-
-  if (!validationErrors.isEmpty()) { 
-    const errors = {};
-    validationErrors
-      .array()
-      .forEach(error => errors[error.path] = error.msg);
-
-    const err = Error("Bad request.");
-    err.errors = errors;
-    err.status = 400;
-    err.title = "Bad request.";
-    next(err);
-  }
-  next();
-};
-
-module.exports = {
-  handleValidationErrors
-};
+```bash
+git pull origin main
 ```
 
-The `handleValidationErrors` function is exported at the bottom of the file. You
-will test this function later when it's used.
+Then, merge the `dev` branch into the `main` branch:
 
-Here's another great time to commit!
+```bash
+git merge dev
+```
 
-## Validating Login Request Body
+Finally, push the `main` branch to the remote repository:
 
-In the `backend/routes/api/session.js` file, import the `check` function from
-`express-validator` and the `handleValidationError` function you just created.
+```bash
+git push origin main
+```
 
-```js
-// backend/routes/api/session.js
+Then follow the deployment instructions below.
+
+## Phase 1: Set up a __package.json__ at the project root
+
+Initialize a `package.json` file at the very root of your project directory
+(outside of both the `backend` and `frontend` folders) with `npm init -y`.
+The scripts defined in this `package.json` file will be run by Render, not
+the scripts defined in the `backend/package.json`.
+
+When Render runs `npm install`, it should install packages for the `backend`.
+Overwrite the `install` script in the root `package.json` with:
+
+```bash
+npm --prefix backend install backend
+```
+
+This will run `npm install` in the `backend` folder.
+
+Define a `sequelize` script that will run `npm run sequelize` in the `backend`
+folder.
+
+Define a `build` script that will run `npm run build` in the `backend`
+folder.
+
+Finally, define a `start` that will run `npm start` in the `backend folder.
+
+The root `package.json`'s scripts should look like this:
+
+```json
 // ...
-const { check } = require('express-validator');
-const { handleValidationErrors } = require('../../utils/validation');
-// ...
-```
-
-The `check` function from `express-validator` will be used with the
-`handleValidationErrors` to validate the body of a request.
-
-The `POST /api/session` login route will expect the body of the request to have
-a key of `credential` with either the `username` or `email` of a user and a key
-of `password` with the password of the user.
-
-Make a middleware called `validateLogin` that will check these keys and validate
-them:
-
-```js
-// backend/routes/api/session.js
-// ...
-
-const validateLogin = [
-  check('credential')
-    .exists({ checkFalsy: true })
-    .notEmpty()
-    .withMessage('Please provide a valid email or username.'),
-  check('password')
-    .exists({ checkFalsy: true })
-    .withMessage('Please provide a password.'),
-  handleValidationErrors
-];
-```
-
-The `validateLogin` middleware is composed of the `check` and
-`handleValidationErrors` middleware. It checks to see whether or not
-`req.body.credential` and `req.body.password` are empty. If one of them is
-empty, then an error will be returned as the response.
-
-Next, connect the `POST /api/session` route to the `validateLogin` middleware.
-Your login route should now look like this:
-
-```js
-// backend/routes/api/session.js
-// ...
-
-// Log in
-router.post(
-  '/',
-  validateLogin,
-  async (req, res, next) => {
-    const { credential, password } = req.body;
-
-    const user = await User.unscoped().findOne({
-      where: {
-        [Op.or]: {
-          username: credential,
-          email: credential
-        }
-      }
-    });
-
-    if (!user || !bcrypt.compareSync(password, user.hashedPassword.toString())) {
-      const err = new Error('Login failed');
-      err.status = 401;
-      err.title = 'Login failed';
-      err.errors = { credential: 'The provided credentials were invalid.' };
-      return next(err);
-    }
-
-    const safeUser = {
-      id: user.id,
-      email: user.email,
-      username: user.username,
-    };
-
-    await setTokenCookie(res, safeUser);
-
-    return res.json({
-      user: safeUser
-    });
-  }
-);
-```
-
-### Test the Login Validation
-
-Test `validateLogin` by navigating to the [http://localhost:8000/api/csrf/restore]
-test route and making a fetch request from the browser's DevTools console.
-Remember, you need to pass in the value of the `XSRF-TOKEN` cookie as a header
-in the fetch request because the login route has a `POST` HTTP verb.
-
-If at any point you don't see the expected behavior while testing, check your
-backend server logs in the terminal where you ran `npm start`. Also, check the
-syntax in the `users.js` route file as well as the `handleValidationErrors`
-middleware.
-
-Try setting the `credential` user field to an empty string. You should get a
-`Bad Request` error back.
-
-```js
-fetch('/api/session', {
-  method: 'POST',
-  headers: {
-    "Content-Type": "application/json",
-    "XSRF-TOKEN": `<value of XSRF-TOKEN cookie>`
+  "scripts": {
+    "install": "npm --prefix backend install backend",
+    "dev:backend": "npm install --prefix backend start",
+    "sequelize": "npm run --prefix backend sequelize",
+    "sequelize-cli": "npm run --prefix backend sequelize-cli",
+    "start": "npm start --prefix backend",
+    "build": "npm run --prefix backend build"
   },
-  body: JSON.stringify({ credential: '', password: 'password' })
-}).then(res => res.json()).then(data => console.log(data));
-```
-
-Remember to replace the `<value of XSRF-TOKEN cookie>` with the value of the
-`XSRF-TOKEN` cookie found in your browser's DevTools. If you don't have the
-`XSRF-TOKEN` cookie anymore, access the [http://localhost:8000/api/csrf/restore]
-route to add the cookie back.
-
-Test the `password` field by setting it to an empty string. You should get a
-`Bad Request` error back with `Please provide a password` as one of the errors.
-
-```js
-fetch('/api/session', {
-  method: 'POST',
-  headers: {
-    "Content-Type": "application/json",
-    "XSRF-TOKEN": `<value of XSRF-TOKEN cookie>`
-  },
-  body: JSON.stringify({ credential: 'Demo-lition', password: '' })
-}).then(res => res.json()).then(data => console.log(data));
-```
-
-## Commit your code
-
-Now is a good time to commit and push your code to GitHub!
-
-Here's a recommendation for what to write as your commit message:
-"Add User input validation on user login backend endpoint"
-
-## Merge your feature branch into your dev branch
-
-Once you thoroughly test that your `validate-login-inputs` feature branch is
-working,
-merge the branch into the `dev` branch.
-
-To do this, first checkout the `dev` branch:
-
-```bash
-git checkout dev
-```
-
-Then, make sure you have the latest changes in the development branch from
-your remote repository in your local repository (this is useful when
-collaborating with other developers):
-
-```bash
-git pull origin dev
-```
-
-Then, merge the feature branch into the `dev` branch:
-
-```bash
-git merge validate-login-inputs
-```
-
-Finally, push your changes to the development branch to the remote repository:
-
-```bash
-git push origin dev
-```
-
-## Validate Signup Inputs Git Feature Branch
-
-Checkout the `dev` branch and make a new feature branch called
-`validate-signup-inputs` from the `dev` branch.
-
-```bash
-git checkout dev
-git checkout -b validate-signup-inputs
-```
-
-You will be making commits for adding user input validation on user signup
-requests to the backend server.
-
-## Validating Signup Request Body
-
-In the `backend/routes/api/users.js` file, import the `check` function from
-`express-validator` and the `handleValidationError` function you created.
-
-```js
-// backend/routes/api/users.js
-// ...
-const { check } = require('express-validator');
-const { handleValidationErrors } = require('../../utils/validation');
 // ...
 ```
 
-The `POST /api/users` signup route will expect the body of the request to have
-a key of `username`, `email`, and `password` with the password of the user
-being created.
+The `dev:backend` script is optional and will not be used for Render.
 
-Make a middleware called `validateSignup` that will check these keys and
-validate them:
+Finally, commit your changes. Merge your `dev` branch into `main` for deployment.
 
-```js
-// backend/routes/api/users.js
-// ...
-const validateSignup = [
-  check('email')
-    .exists({ checkFalsy: true })
-    .isEmail()
-    .withMessage('Please provide a valid email.'),
-  check('username')
-    .exists({ checkFalsy: true })
-    .isLength({ min: 4 })
-    .withMessage('Please provide a username with at least 4 characters.'),
-  check('username')
-    .not()
-    .isEmail()
-    .withMessage('Username cannot be an email.'),
-  check('password')
-    .exists({ checkFalsy: true })
-    .isLength({ min: 6 })
-    .withMessage('Password must be 6 characters or more.'),
-  handleValidationErrors
-];
+## Phase 2: Set up Render.com account
+
+_Skip this step if you already have a Render.com account connected to your
+GitHub account._
+
+Navigate to the [Render homepage] and click on "Get Started". On the Sign Up
+page, click on the GitHub button. This will allow you to sign in to Render
+through your GitHub account, and easily connect your repositories to Render for
+deployment. Follow the instructions to complete your registration and verify
+your account information.
+
+## Phase 3: Create a Postgres Database Instance
+
+_Skip this step if you have already created your Render Postgres database
+instance for another application._
+
+Sign in to Render using your GitHub credentials, and navigate to your
+[Dashboard].
+
+Click on the "New +" button in the navigation bar, and click on "PostgreSQL" to
+create your Postgres database instance.
+
+In the name field, give your database a descriptive name. Note that all of your
+applications will share this database instance, so make it general (for example,
+you might name it "App-Academy-Projects"). For the region field, choose the
+location nearest to you. The rest of the fields in this section can be left
+blank.
+
+Click the "Create Database" button to create the new Postgres database instance.
+Within a few minutes, your new database will be ready to use. Scroll down on
+the page to see all of the information about your database, including the
+hostname, user name and password, and URLs to connect to the database.
+
+You can access this information anytime by going back to your [Dashboard], and
+clicking on the database instance.
+
+## Phase 4: Create a New Web Service
+
+From the [Dashboard], click on the "New +" button in the navigation bar, and
+click on "Web Service" to create the application that will be deployed.
+
+> _Note: If you set up your Render.com account using your GitHub credentials,
+> you should see a list of applications to choose from. If you do not, click on
+> "Configure Account" for GitHub in the right sidebar to make the connection
+> between your Render and GitHub accounts, then continue. If you run into issues
+> with the GitHub connection, use this article to [reset your GitHub
+> connection]._
+
+Look for the name of the application you want to deploy, and click the "Connect"
+button to the right of the name.
+
+Now, fill out the form to configure the build and start commands, as well as add
+the environment variables to properly deploy the application.
+
+### Part A: Configure the Start and Build Commands
+
+Start by giving your application a name. This is the name that will be included
+in the URL of the deployed site, so make sure it is clear and simple. The name
+should be entered in kebab-case. The words "Airbnb", "Meetup", and "Clone"
+***MUST NOT BE INCLUDED*** in the name. If you submit your project with any of
+those words in the URL, you'll be asked to recreate your Render instance.
+
+Leave the root directory field blank. By default, Render will run commands from
+the root directory.
+
+Make sure the Environment field is set set to "Node", the Region is set to the
+same location as your database, and the Branch is set to "main".
+
+Next, add your Build command. This is a script that should include everything
+that needs to happen _before_ starting the server.
+
+For this project, enter the following script into the Build field, all in one
+line:
+
+```shell
+# build command while developing - enter all in one line
+
+npm install &&
+npm run build &&
+npm run sequelize --prefix backend db:seed:undo:all &&
+npm run sequelize --prefix backend db:migrate:undo:all &&
+npm run sequelize --prefix backend db:migrate &&
+npm run sequelize --prefix backend db:seed:all
 ```
 
-The `validateSignup` middleware is composed of the `check` and
-`handleValidationErrors` middleware. It checks to see if `req.body.email` exists
-and is an email, `req.body.username` is a minimum length of 4 and is not an
-email, and `req.body.password` is not empty and has a minimum length of 6. If at
-least one of the `req.body` values fail the check, an error will be returned as
-the response.
+This script will install dependencies, run the build command in the
+__package.json__ file, then run the `down` & `up` functions in the migration and
+seed files. All of these commands will be run from the backend directory.
 
-Next, connect the `POST /api/users` route to the `validateSignup` middleware.
-Your signup route should now look like this:
+This is the recommended script to use while you develop and test your production
+application. Running the `down` functions for your seed and migration files will
+ensure that any changes to these files will be recognized by Sequelize and
+applied to your production database.
+
+However, this also means your data won't persist when redeploying. That's fine
+while testing your application, but needs to be changed before your final
+production deployment.
+
+Once your project is complete and no further changes will be made to your
+migration & seed files, you can update the command to remove the two lines that
+contain `undo`:
+
+```shell
+# build command for final submission - enter all in one line
+
+npm install &&
+npm run build &&
+npm run sequelize --prefix backend db:migrate &&
+npm run sequelize --prefix backend db:seed:all
+```
+
+> Note: Due to limitations of Render.com's free tier, you will be including the
+> seed command within the build. **This should only be done for demo
+> applications, not production applications.** Including the seed command in the
+> build will allow you to more easily replace your free database after it
+> expires every 90 days, and will also help keep your application in a pristine
+> state with clean seed data.
+
+Now, add your start command in the Start field:
+
+```shell
+npm start
+```
+
+### Part B: Add the Environment Variables
+
+Scroll down to the "Environment Variables" section to configure the values your
+application needs to access to run properly. In the development environment, you
+have been securing these variables in the __.env__ file, which has been removed
+from source control. In this step, you will need to input the keys and values
+for the environment variables you need for production into the Render GUI.
+
+Click on "Add Environment Variable" to start adding as many variables as you
+need. You will not need to add the `PORT` or `DB_FILE` variables, since those
+are only used in the development environment, not production.
+
+Add the following keys and values in the Render GUI form:
+
+- JWT_SECRET (click "Generate" to generate a secure secret for production)
+- JWT_EXPIRES_IN 604800 (or the value as your local __.env file__)
+- NODE_ENV production
+- SCHEMA (custom name, in snake_case)
+
+Open a new tab and navigate to your Render dashboard. Click on your Postgres
+database instance and scroll down to "Connections". Copy the value from
+"Internal Database URL", then return to the tab with "Environment Variables".
+
+Add the following key and paste the value you copied:
+
+- DATABASE_URL (copy value from Internal Database URL field)
+
+_Note: As you work to further develop your project, you may need to add more
+environment variables to your local __.env__ file. Make sure you add these
+environment variables to the Render GUI as well for the next deployment._
+
+Click on the "Advanced" dropdown at the bottom of the form and make sure "Yes"
+is selected for the Auto-Deploy field. This will re-deploy your application
+every time you push to main.
+
+Now, you are finally ready to deploy! Click "Deploy Web Service" to deploy your
+project. The deployment process will likely take about 10-15 minutes if
+everything works as expected. You can monitor the logs to see your build and
+start commands being executed, and see any errors in the build process.
+
+When deployment is complete, open your deployed site and check to see if you
+successfully deployed your Express application to Render! You can find the URL
+for your site just below the name of the Web Service at the top of the page.
+
+## Phase 5: Ongoing Maintenance
+
+The main limitation of the free Render Postgres database instance is that it
+will be deleted after 30 days. In order to keep your application up and running,
+you MUST create a new database instance before the 30 day period ends.
+
+__Set up calendar reminders for yourself to reset your Render Postgres database
+instance every 25 days so your application(s) will not experience any
+downtime.__
+
+Each time you get your calendar reminder, follow the steps below.
+
+1. Navigate to your Render [Dashboard], click on your database instance, and
+   click on either the "Delete Database" or "Suspend Database" button.
+
+2. Next, follow the instructions in Phase #3 above to create a new database
+   instance.
+
+3. Finally, you will need to update the environment variables for EVERY
+   application that was connected to the original database with the new database
+   information. For each application:
+
+  - Click on the application name from your [Dashboard]
+  - Click on "Environment" in the left sidebar
+  - Replace the value for `DATABASE_URL` with the new value from your new database
+    instance, and then click "Save Changes"
+  - At the top of the page, click "Manual Deploy", and choose "Clear build cache
+    & deploy".
+
+4. After each application is updated with the new database instance and
+   re-deployed, manually test each application to make sure everything still
+   works and is appropriately seeded.
+
+## Troubleshooting Tips and Tools
+
+Render offers a straightforward deployment process, but you may run into
+difficulties. Use the tips and tools below to troubleshoot your deployment.
+
+### Database Issues
+
+Since creating a database is a simple process with the Render GUI, most issues
+related to the database are not caused by the database creation phase. Instead,
+they may be caused by errors in configuring your application to run in the
+production environment (errors in the project repo), or errors in connecting
+your application to the Render Postgres database instance (errors setting up the
+Web Service in the Render GUI).
+
+__Troubleshooting Project Configuration__
+
+Check the following to make sure your project is properly set up to run sqlite
+in development, and Postgres in production.
+
+- Does your configuration file include a `production` key including the database
+  url for Postgres?
 
 ```js
-// backend/routes/api/users.js
 // ...
-
-// Sign up
-router.post(
-  '/',
-  validateSignup,
-  async (req, res) => {
-    const { email, password, username } = req.body;
-    const hashedPassword = bcrypt.hashSync(password);
-    const user = await User.create({ email, username, hashedPassword });
-
-    const safeUser = {
-      id: user.id,
-      email: user.email,
-      username: user.username,
-    };
-
-    await setTokenCookie(res, safeUser);
-
-    return res.json({
-      user: safeUser
-    });
+  production: {
+    use_env_variable: 'DATABASE_URL',
+    dialect: 'postgres',
+    // ...
   }
-);
+  // ...
 ```
 
-### Test the Signup Validation
+- Did you properly set up your project to create a schema within the production
+  database, through the __psql-setup-script.js__ file and `build` command in the
+  __backend/package.json__ file?
 
-Test `validateSignup` by navigating to the [http://localhost:8000/api/csrf/restore]
-route and making a fetch request from the browser's DevTools console.
-Remember, you need to pass in the value of the `XSRF-TOKEN` cookie as a header
-in the fetch request because the login route has a `POST` HTTP verb.
+- Did you properly define that schema in ALL of the migration and seeder files?
 
-If at any point you don't see the expected behavior while testing, check your
-backend server logs in the terminal where you ran `npm start`. Also, check the
-syntax in the `users.js` route file as well as the `handleValidationErrors`
-middleware.
+- Did you include the correct scripts in the __backend/package.json__ and root __package.json__ files?
 
-First, test the signup route with an empty `password` field. You should get a
-`Bad Request` error back with `Password must be 6 characters or more.` as one of
-the errors.
+__Web Service Setup Issues__
 
-```js
-fetch('/api/users', {
-  method: 'POST',
-  headers: {
-    "Content-Type": "application/json",
-    "XSRF-TOKEN": `<value of XSRF-TOKEN cookie>`
-  },
-  body: JSON.stringify({
-    email: 'firestar@spider.man',
-    username: 'Firestar',
-    password: ''
-  })
-}).then(res => res.json()).then(data => console.log(data));
+Check the following fields to make sure your database connection is set up
+properly:
+
+- Environment variables: Did you include the `NODE_ENV` variable set to
+  "production" and the `DATABASE_URL` key set to the "Internal Database URL"
+  value from your Render Postgres database instance?
+
+- Deployment logs: Did each command in your build script and start script run as
+  expected?
+
+- Deployment Logs: Did the migration files and seeder files run as expected?
+
+### Checking the Postgres Database (Advanced Troubleshooting)
+
+If you've checked all of the issues described above, you can further
+troubleshoot your deployment by examining the contents of your Postgres
+database. In order to do this, you must have [PostgreSQL] installed locally on
+your computer.
+
+To access your Render Postgres database, copy the PSQL Command value from the
+information page of your database. The value should start with "PGPASSWORD=",
+and should include information about your database.
+
+Paste this value into your terminal. This will open up Postgres with a
+connection to your remote database. At this point, you can use Postgres commands
+locally to examine the contents of your database. Try the following:
+
+- `\dn` - lists all of the schemas in the database
+  - Does your database show the correct schema for your project?
+
+- `\dt <SchemaName>.*` - lists all tables within `<SchemaName>` schema
+  - Do you see all of your tables within the schema? You should see the `Users` table, as well as the `SequelizeMeta` and `SequelizeData` tables at this point.
+
+- `SELECT * FROM "<SchemaName>"."Users";` - lists all entries in the `Users` table
+  within `SchemaName` schema
+ - Does the `Users` table show the appropriate seed data?
+
+If there are any problems with the way the database or schema is set up, you can drop the schema for your application and all tables within it, using the following command:
+
+```sql
+DROP SCHEMA <SchemaName> CASCADE
 ```
 
-Remember to replace the `<value of XSRF-TOKEN cookie>` with the value of the
-`XSRF-TOKEN` cookie found in your browser's DevTools. If you don't have the
-`XSRF-TOKEN` cookie anymore, access the [http://localhost:8000/api/csrf/restore]
-route to add the cookie back.
 
-Then try to sign up with more invalid fields to test out the checks in the
-`validateSignup` middleware. Make sure to cover each of the following test
-cases which should give back a `Bad Request` error:
+## Re-deployment
 
-- `email` field is an empty string
-- `email` field is not an email
-- `username` field is an empty string
-- `username` field is only 3 characters long
-- `username` field is an email
-- `password` field is only 5 characters long
+There are two ways to re-deploy your `main` branch changes:
 
-If you don't see the `Bad Request` error for any of these, check your syntax for
-the `validateSignup` middleware.
+1. If you set up your application for Auto-deployment, it should automatically re-deploy after every push to main.
 
-## Commit your code
+2. You can manually trigger a re-deployment at any time. Click on the blue "Manual Deploy" button, and choose "Clear Build Cache & Deploy". You will be able to see the logs and confirm that your re-deployment is successful.
 
-Now is a good time to commit and push your code to GitHub!
 
-Here's a recommendation for what to write as your commit message:
-"Add User input validation on user signup backend endpoint"
-
-## Merge your feature branch into your dev branch
-
-Once you thoroughly test that your `validate-signup-inputs` feature branch is
-working,
-merge the branch into the `dev` branch.
-
-To do this, first checkout the `dev` branch:
-
-```bash
-git checkout dev
-```
-
-Then, make sure you have the latest changes in the development branch from
-your remote repository in your local repository (this is useful when
-collaborating with other developers):
-
-```bash
-git pull origin dev
-```
-
-Then, merge the feature branch into the `dev` branch:
-
-```bash
-git merge validate-signup-inputs
-```
-
-Finally, push your changes to the development branch to the remote repository:
-
-```bash
-git push origin dev
-```
-
-## Wrapping up the Backend
-
-**Do not remove the `POST /api/test` route just yet. You will be using it much
-later when setting up your frontend.**
-
-```js
-// backend/routes/api/index.js
-// ...
-
-// Keep this route to test frontend setup in Mod 5
-router.post('/test', function (req, res) {
-  res.json({ requestBody: req.body });
-});
-
-// ...
-```
-
-### Refactor to add `firstName` and `lastName` attributes
-
-Now, try to refactor your code to add this simple change.
-
-Update your server files to add `firstName` and `lastName` attributes to a
-`User` in your database. **Make sure to update your migration and model files
-and your route handlers** to reflect this change!
-
-Confirm that your `POST /api/session` and your `POST /api/users` endpoints return the
-user in the following format on successful login/signup:
-
-```js
-{
-  user: {
-    id,
-    firstName,
-    lastName,
-    email,
-    userName
-  }
-}
-```
-
-Confirm that your `GET /api/session` endpoint returns the user in the following
-format if there is a logged in user:
-
-```js
-{
-  user: {
-    id,
-    firstName,
-    lastName,
-    email,
-    userName
-  }
-}
-```
-
-Confirm that your `GET /api/session` endpoint returns the following if there
-is **no** logged in user:
-
-```js
-{
-  user: null
-}
-```
-
-### Next Steps
-
-Awesome work! You just finished setting up the entire backend for this project!
-In the next part, you will deploy the application to Render.
-
-[helmet on the `npm` registry]: https://www.npmjs.com/package/helmet
-[Express error-handling middleware]: https://expressjs.com/en/guide/using-middleware.html#middleware.error-handling
-[model-level validations]: https://sequelize.org/master/manual/validations-and-constraints.html
-[model scoping]: https://sequelize.org/master/manual/scopes.html
-[Content Security Policy]: https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP
-[Cross-Site Scripting]: https://developer.mozilla.org/en-US/docs/Glossary/Cross-site_scripting
-[crossOriginResourcePolicy]: https://www.npmjs.com/package/helmet
-[http://localhost:8000/hello/world]: http://localhost:8000/hello/world
-[http://localhost:8000/not-found]: http://localhost:8000/not-found
-[http://localhost:8000/api/set-token-cookie]: http://localhost:8000/api/set-token-cookie
-[http://localhost:8000/api/restore-user]: http://localhost:8000/api/restore-user
-[http://localhost:8000/api/require-auth]: http://localhost:8000/api/require-auth
-[http://localhost:8000/api/session]: http://localhost:8000/api/session
-[http://localhost:8000/api/csrf/restore]: http://localhost:8000/api/csrf/restore
+[Render homepage]: https://render.com/
+[Dashboard]: https://dashboard.render.com/
+[PostgreSQL]: https://www.postgresql.org/
+[reset your GitHub connection]: https://community.render.com/t/github-id-belongs-to-an-existing-render-user/2411/1
