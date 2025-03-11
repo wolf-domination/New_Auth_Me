@@ -8,13 +8,14 @@ JWT_EXPIRES_IN=1h
 DB_FILE=./db/dev.db' This is private information.
 
 cd into backend run 'cd backend' in the terminal.
-Run this command 'npm install cookie-parser && npm install cors && npm install csurf && npm install dotenv && npm install express && npm install express-async-errors && npm install helmet && npm install jsonwebtoken && npm install morgan && npm install per-env && npm install sequelize && npm install sequelize-cli && npm install pg && npm install -D sqlite3 && npm install -D dotenv-cli && npm install -D nodemon && npm install bcrypt js && npx sequelize model:generate --name User --attributes username:string,email:string,hashedPassword:string' 
+Run this command 'npm install cookie-parser && npm install cors && npm install csurf && npm install dotenv && npm install express && npm install express-async-errors && npm install helmet && npm install jsonwebtoken && npm install morgan && npm install per-env && npm install sequelize && npm install sequelize-cli && npm install pg && npm install -D sqlite3 && npm install -D dotenv-cli && npm install -D nodemon && npm install bcrypt js && && npm install express-validator && npx sequelize model:generate --name User --attributes username:string,email:string,hashedPassword:string' 
 in the terminal.
 Then run 'npm start' in the terminal.
 
 This is just my chicken scratch below don't pay attention to it.
 
-Additional commands 'npx sequelize db:migrate' 'npx dotenv sequelize db:migrate' 'npx sequelize db:seed:all'
+Additional commands 'git branch -a' 'git checkout -b dev
+git push -u origin dev' 'git switch dev' 'git checkout dev' 'npx sequelize db:migrate' 'npx dotenv sequelize db:migrate' 'npx sequelize db:seed:all'
 
 'jordanpierson@Jordans-MacBook-Air backend % sqlite3 db/dev.db
 SQLite version 3.48.0 2025-01-14 11:05:00
