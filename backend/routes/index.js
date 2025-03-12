@@ -1,8 +1,6 @@
 
 
 
-//My additional modification.
-const routes = require('./backend/routes/index.js');
 
 
 // backend/routes/index.js
