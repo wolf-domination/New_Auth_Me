@@ -98,14 +98,43 @@
 
 
 
-const { Sequelize } = require('sequelize');
-const config = require('./index');  // Your other config if needed
+// const { Sequelize } = require('sequelize');
+// const config = require('./index');  // Your other config if needed
 
-// Initialize Sequelize instance
-const sequelize = new Sequelize({
-  dialect: 'sqlite', // or 'postgres' in production
-  storage: config.dbFile || './db/development.sqlite3',  // Use correct db path
-  logging: false,  // Optional: Disable query logging if not needed
-});
+// // Initialize Sequelize instance
+// const sequelize = new Sequelize({
+//   dialect: 'sqlite', // or 'postgres' in production
+//   storage: config.dbFile || './db/development.sqlite3',  // Use correct db path
+//   logging: false,  // Optional: Disable query logging if not needed
+// });
 
-module.exports = sequelize;
+// module.exports = sequelize;
+
+const config = require('./index');
+
+module.exports = {
+  development: {
+    dialect: 'sqlite',
+    storage: config.dbFile || './db/development.sqlite3',  // ✅ Ensure correct database file path
+    database: 'database',  // ✅ Required field (dummy name for SQLite)
+    username: 'username',  // ✅ Required field (dummy name for SQLite)
+    password: 'password',  // ✅ Required field (dummy name for SQLite)
+    seederStorage: 'sequelize',
+    logQueryParameters: true,
+    typeValidation: true
+  },
+  production: {
+    use_env_variable: 'DATABASE_URL',
+    dialect: 'postgres',
+    seederStorage: 'sequelize',
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false
+      }
+    },
+    define: {
+      schema: process.env.SCHEMA
+    }
+  }
+};

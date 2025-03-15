@@ -20,6 +20,10 @@ module.exports = (sequelize, DataTypes) => {
       ownerId: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        references: {
+          model: 'Spots',
+          key: 'id'
+        },
         validate: {
           notNull: { msg: 'Owner ID is required' },
           isInt: { msg: 'Owner ID must be an integer' },
@@ -28,6 +32,10 @@ module.exports = (sequelize, DataTypes) => {
       address: {
         type: DataTypes.STRING,
         allowNull: false,
+        references: {
+          model: 'Spots',
+          key: 'id'
+        },
         validate: {
           notNull: { msg: 'Address is required' },
           notEmpty: { msg: 'Address cannot be empty' },
@@ -36,6 +44,10 @@ module.exports = (sequelize, DataTypes) => {
       city: {
         type: DataTypes.STRING,
         allowNull: false,
+        references: {
+          model: 'Spots',
+          key: 'id'
+        },
         validate: {
           notNull: { msg: 'City is required' },
           notEmpty: { msg: 'City cannot be empty' },
@@ -44,6 +56,10 @@ module.exports = (sequelize, DataTypes) => {
       state: {
         type: DataTypes.STRING,
         allowNull: false,
+        references: {
+          model: 'Spots',
+          key: 'id'
+        },
         validate: {
           notNull: { msg: 'State is required' },
           notEmpty: { msg: 'State cannot be empty' },
@@ -52,6 +68,10 @@ module.exports = (sequelize, DataTypes) => {
       country: {
         type: DataTypes.STRING,
         allowNull: false,
+        references: {
+          model: 'Spots',
+          key: 'id'
+        },
         validate: {
           notNull: { msg: 'Country is required' },
           notEmpty: { msg: 'Country cannot be empty' },
@@ -60,6 +80,10 @@ module.exports = (sequelize, DataTypes) => {
       lat: {
         type: DataTypes.DECIMAL(10, 7),
         allowNull: false,
+        references: {
+          model: 'Spots',
+          key: 'id'
+        },
         validate: {
           notNull: { msg: 'Latitude is required' },
           isDecimal: { msg: 'Latitude must be a decimal number' },
@@ -70,6 +94,10 @@ module.exports = (sequelize, DataTypes) => {
       lng: {
         type: DataTypes.DECIMAL(10, 7),
         allowNull: false,
+        references: {
+          model: 'Spots',
+          key: 'id'
+        },
         validate: {
           notNull: { msg: 'Longitude is required' },
           isDecimal: { msg: 'Longitude must be a decimal number' },
@@ -80,6 +108,10 @@ module.exports = (sequelize, DataTypes) => {
       name: {
         type: DataTypes.STRING(50),
         allowNull: false,
+        references: {
+          model: 'Spots',
+          key: 'id'
+        },
         validate: {
           notNull: { msg: 'Name is required' },
           notEmpty: { msg: 'Name cannot be empty' },
@@ -89,6 +121,10 @@ module.exports = (sequelize, DataTypes) => {
       description: {
         type: DataTypes.TEXT,
         allowNull: false,
+        references: {
+          model: 'Spots',
+          key: 'id'
+        },
         validate: {
           notNull: { msg: 'Description is required' },
           notEmpty: { msg: 'Description cannot be empty' },
@@ -97,6 +133,10 @@ module.exports = (sequelize, DataTypes) => {
       price: {
         type: DataTypes.DECIMAL(10, 2),
         allowNull: false,
+        references: {
+          model: 'Spots',
+          key: 'id'
+        },
         validate: {
           notNull: { msg: 'Price is required' },
           isDecimal: { msg: 'Price must be a decimal number' },

@@ -117,32 +117,144 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+// 'use strict';
+
+// module.exports = {
+//   up: async (queryInterface, Sequelize) => {
+//     // Create demo spots, etc.
+//     await queryInterface.bulkInsert('Spots', [
+//       {
+//         ownerId: 1,  // example ownerId
+//         address: '123 Main St',
+//         city: 'San Francisco',
+//         state: 'CA',
+//         country: 'USA',
+//         lat: 37.7749,
+//         lng: -122.4194,
+//         name: 'Demo Spot 1',
+//         description: 'A cool spot!',
+//         price: 100.00,
+//         createdAt: new Date(),
+//         updatedAt: new Date()
+//       },
+//       // Add other spots as needed
+//     ]);
+//   },
+
+//   down: async (queryInterface, Sequelize) => {
+//     // Revert the seed (optional)
+//     await queryInterface.bulkDelete('Spots', null, {});
+//   }
+// };
+
+
+
+
+
+
+
+
+
+// backend/db/seeders/XXXXXXXXXXXXXX-demo-spots.js
 'use strict';
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    // Create demo spots, etc.
-    await queryInterface.bulkInsert('Spots', [
+    // 1. Set up options object for production environment (if needed)
+    // Assuming you need to adjust the options depending on environment.
+    const environment = process.env.NODE_ENV || 'development';
+    const options = environment === 'production' ? { transaction: true } : {};
+
+    // 2. Define up method:
+    // - Find demo user (assuming you have a User model)
+    const demoUser = await queryInterface.sequelize.models.User.findOne({
+      where: { email: 'demo@user.com' }, // Replace with an actual email for the demo user
+    });
+
+    if (!demoUser) {
+      console.log("Demo user not found, skipping spots seeding.");
+      return;
+    }
+
+    
+      'Spots', // Table name
       {
-        ownerId: 1,  // example ownerId
-        address: '123 Main St',
-        city: 'San Francisco',
-        state: 'CA',
-        country: 'USA',
-        lat: 37.7749,
-        lng: -122.4194,
-        name: 'Demo Spot 1',
-        description: 'A cool spot!',
-        price: 100.00,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      // Add other spots as needed
-    ]);
+        "Spots": [
+          {
+            "id": 1,
+            "ownerId": 1,
+            "address": "123 Disney Lane",
+            "city": "San Francisco",
+            "state": "California",
+            "country": "United States of America",
+            "lat": 37.7645358,
+            "lng": -122.4730327,
+            "name": "App Academy",
+            "description": "Place where web developers are created",
+            "price": 123,
+            "createdAt": "2021-11-19 20:39:36",
+            "updatedAt": "2021-11-19 20:39:36",
+            "avgRating": 4.5,
+            "previewImage": "image url"
+          }
+        ]
+      }
+
+    // 3. Create sample spot images
+    await queryInterface.bulkInsert(
+      'SpotImages', // Table name
+      [
+        // Preview and non-preview images for Spot 1
+        {
+          spotId: 1,
+          imageUrl: 'https://example.com/preview1.jpg', // Replace with actual image URLs
+          isPreview: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          spotId: 1,
+          imageUrl: 'https://example.com/non-preview1.jpg',
+          isPreview: false,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        // Preview image for Spot 2
+        {
+          spotId: 2,
+          imageUrl: 'https://example.com/preview2.jpg',
+          isPreview: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        // Preview image for Spot 3
+        {
+          spotId: 3,
+          imageUrl: 'https://example.com/preview3.jpg',
+          isPreview: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ],
+      options
+    );
   },
 
   down: async (queryInterface, Sequelize) => {
-    // Revert the seed (optional)
+    // 3. Define down method:
+    // - Delete all records from the SpotImages and Spots tables
+    await queryInterface.bulkDelete('SpotImages', null, {});
     await queryInterface.bulkDelete('Spots', null, {});
-  }
+  },
 };
