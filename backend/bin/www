@@ -11,7 +11,7 @@ const app = require('../app');
 const db = require('../db/models');
 
 // Use the Render-provided port if available, otherwise default to 8000
-const port = process.env.PORT || 8000;
+const port = process.env.PORT || 800;
 
 // Check the database connection before starting the app
 db.sequelize
