@@ -26,6 +26,10 @@ const router = express.Router();
 const sessionRouter = require('./session');
 const usersRouter = require('./users');
 const spotsRouter = require('./spots');
+const reviewsRouter       = require('./reviews');
+const bookingsRouter      = require('./bookings');
+const userReviewsRouter   = require('./user-reviews');
+const userBookingsRouter  = require('./user-bookings');
 
 // Import restoreUser middleware
 const { restoreUser } = require('../../utils/auth');
@@ -37,6 +41,11 @@ router.use(restoreUser);
 router.use('/session', sessionRouter);
 router.use('/users', usersRouter);
 router.use('/spots', spotsRouter);
+router.use('/spots/:spotId/reviews',  reviewsRouter);
+router.use('/spots/:spotId/bookings', bookingsRouter);
+
+router.use('/reviews',   userReviewsRouter);   // GET /api/reviews/current
+router.use('/bookings',  userBookingsRouter);  // GET /api/bookings/current
 
 // Export router
 module.exports = router;

@@ -27,11 +27,18 @@ const validateSpot = [
 
 // Validate Query Filters Middleware
 const validateQueryFilters = [
-  check('page').optional().isInt({ min: 1 }).withMessage('Page must be greater than or equal to 1'),
-  check('size').optional().isInt({ min: 1 }).withMessage('Size must be greater than or equal to 1'),
-  handleValidationErrors,
+  check('page')
+    .optional().isInt({ min: 1 }).withMessage('Page must be ≥ 1'),
+  check('size')
+    .optional().isInt({ min: 1 }).withMessage('Size must be ≥ 1'),
+  check('minLat').optional().isFloat({ min: -90, max: 90 }).withMessage('minLat must be between -90 and 90'),
+  check('maxLat').optional().isFloat({ min: -90, max: 90 }).withMessage('maxLat must be between -90 and 90'),
+  check('minLng').optional().isFloat({ min: -180, max: 180 }).withMessage('minLng must be between -180 and 180'),
+  check('maxLng').optional().isFloat({ min: -180, max: 180 }).withMessage('maxLng must be between -180 and 180'),
+  check('minPrice').optional().isFloat({ min: 0 }).withMessage('minPrice must be ≥ 0'),
+  check('maxPrice').optional().isFloat({ min: 0 }).withMessage('maxPrice must be ≥ 0'),
+  handleValidationErrors
 ];
-
 // GET /api/spots - Get all spots with pagination
 router.get('/', validateQueryFilters, async (req, res) => {
   let { page = 1, size = 20 } = req.query;
