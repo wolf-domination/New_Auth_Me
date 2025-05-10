@@ -1,4 +1,4 @@
-'use strict';//This might not be needed. 
+'use strict';
 
 let options = {};
 if (process.env.NODE_ENV === 'production') {
