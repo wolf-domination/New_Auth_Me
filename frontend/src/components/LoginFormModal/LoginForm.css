@@ -1,0 +1,22 @@
+/* Add your login form styles here */
+
+.login-form-container {
+  max-width: 400px;
+  margin: 0 auto;
+}
+.login-form-container label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+.login-form-container input {
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.login-form-container .error {
+  color: red;
+  margin-bottom: 0.5rem;
+}
+.login-form-container button {
+  padding: 0.5rem 1rem;
+}
