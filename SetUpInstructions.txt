@@ -3,9 +3,11 @@ Run these commands:
 
 *first terminal*
 'cd backend'
+'npm install'
 'node server.js'
 //Copy paste this link => http://localhost:8000
 
 *second terminal*
 'cd frontend'
+'npm install redux-logger'
 'npm run dev'
