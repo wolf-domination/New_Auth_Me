@@ -1,5 +1,3 @@
-// frontend/vite.config.js
-
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import eslint from 'vite-plugin-eslint';
@@ -14,14 +12,7 @@ export default defineConfig(({ mode }) => ({
   ],
   server: {
     proxy: {
-      '/api': 'https://new-auth-me-1.onrender.com'
+      '/api': 'http://localhost:8000'
     },
-  }, overrides: [
-    {
-      files: ["src/context/*.jsx"],
-      rules: {
-        'react-refresh/only-export-components': 'off'
-      }
-    }
-  ]
+  }
 }));

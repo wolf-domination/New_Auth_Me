@@ -40,22 +40,18 @@ if (!isProduction) {
   );
   
   // Set the _csrf token and create req.csrfToken method
-  // app.use(
-  //   csurf({
-  //     cookie: {
-  //       secure: isProduction,
-  //       sameSite: isProduction && "Lax",
-  //       httpOnly: true
-  //     }
-  //   })
-  // );
+  app.use(
+    csurf({
+      cookie: {
+        secure: isProduction,
+        sameSite: isProduction && "Lax",
+        httpOnly: true
+      }
+    })
+  );
 
 
-app.use(cors({
-  origin:'http:localhost:5173',
-  methods:['GET','POST','PUT','DELETE'],
-  allowedHeaders:['Content-Type','XSRF-TOKEN']
-}));
+
 
 
 app.use(routes); // Connect all the routes

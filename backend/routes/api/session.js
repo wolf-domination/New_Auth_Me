@@ -60,6 +60,8 @@ router.post(
         id: user.id,
         email: user.email,
         username: user.username,
+        firstName: user.firstName,
+        lastName: user.lastName
       };
       console.log(res)
       await setTokenCookie(res, safeUser);
@@ -99,6 +101,8 @@ router.get(
         id: user.id,
         email: user.email,
         username: user.username,
+        firstName: user.firstName,
+        lastName: user.lastName
       };
       return res.json({
         user: safeUser

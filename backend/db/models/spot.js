@@ -79,13 +79,13 @@ module.exports = (sequelize, DataTypes) => {
       },
       lat: {
         type: DataTypes.DECIMAL(10, 7),
-        allowNull: false,
+        allowNull: true,
         references: {
           model: 'Spots',
           key: 'id'
         },
         validate: {
-          notNull: { msg: 'Latitude is required' },
+          // notNull: { msg: 'Latitude is required' },
           isDecimal: { msg: 'Latitude must be a decimal number' },
           min: { args: [-90], msg: 'Latitude must be between -90 and 90' },
           max: { args: [90], msg: 'Latitude must be between -90 and 90' },
@@ -93,13 +93,13 @@ module.exports = (sequelize, DataTypes) => {
       },
       lng: {
         type: DataTypes.DECIMAL(10, 7),
-        allowNull: false,
+        allowNull: true,
         references: {
           model: 'Spots',
           key: 'id'
         },
         validate: {
-          notNull: { msg: 'Longitude is required' },
+          // notNull: { msg: 'Longitude is required' },
           isDecimal: { msg: 'Longitude must be a decimal number' },
           min: { args: [-180], msg: 'Longitude must be between -180 and 180' },
           max: { args: [180], msg: 'Longitude must be between -180 and 180' },

@@ -1,71 +1,41 @@
-import { NavLink } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { useState } from 'react';
-import ProfileButton from './ProfileButton';
-import OpenModalButton from '../OpenModalButton';
-import LoginFormModal from '../LoginFormModal';
-import SignupFormModal from '../SignupFormModal';
-import './Navigation.css';
+import React from 'react'
+import { NavLink } from 'react-router-dom'
+import { useSelector } from 'react-redux'
+import ProfileButton from './ProfileButton'
+import OpenModalButton from '../OpenModalButton/OpenModalButton'
+import LoginFormModal from '../LoginFormModal/LoginFormModal'
+import SignupFormModal from '../SignupFormModal/SignupFormModal'
+import './Navigation.css'
+import CreateSpotModal from '../CreateSpotModal/CreateSpotModal'
 
-function Navigation({ isLoaded }) {
-  const sessionUser = useSelector((state) => state.session.user);
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
-
-  const handleProfileToggle = () => {
-    setIsProfileOpen((prevState) => !prevState);
-  };
-
-  let sessionLinks;
-  if (sessionUser) {
-    sessionLinks = (
-      <div className="profile-container" onClick={handleProfileToggle}>
-        <ProfileButton user={sessionUser} />
-        {isProfileOpen && (
-          <div className="profile-dropdown">
-            <ul>
-              <li><NavLink to="/profile">Profile</NavLink></li>
-              <li><NavLink to="/logout">Logout</NavLink></li>
-            </ul>
-          </div>
-        )}
-      </div>
-    );
-  } else {
-    sessionLinks = (
-      <>
-        <li>
-          <OpenModalButton
-            buttonText="Log In"
-            modalComponent={<LoginFormModal />}
-          />
-        </li>
-        <li>
-          <OpenModalButton
-            buttonText="Sign Up"
-            modalComponent={<SignupFormModal />}
-          />
-        </li>
-      </>
-    );
-  }
-
+export default function Navigation({ isLoaded }) {
+  const user = useSelector(s => s.session.user)
   return (
-    <nav className="navigation">
-
-      <ul></ul>
-
-      <ul className="nav-links">
-        <li><NavLink to="/" activeClassName="active" >Home</NavLink></li>
-        <li><NavLink to="/exp" activeClassName="active" >Experiences</NavLink></li>
-        {/* <li><NavLink to="/" activeClassName="active">Homes</NavLink></li> */}
-        
-      </ul>
-
-      <ul className="nav-links">
-        {isLoaded && sessionLinks}
-      </ul>
+    <nav className="nav">
+      <NavLink to="/" className="nav-logo">Logo</NavLink>
+      {isLoaded && (
+        <ul className="nav-links">
+          {!user ? (
+            <>
+              <li>
+                <OpenModalButton buttonText="Log In" modalComponent={<LoginFormModal />} />
+              </li>
+              <li>
+                <OpenModalButton buttonText="Sign Up" modalComponent={<SignupFormModal />} />
+              </li>
+            </>
+          ) : (
+            <>
+              <li>
+                <OpenModalButton buttonText="Create a New Spot" modalComponent={<CreateSpotModal />} />
+              </li>
+              <li>
+                <ProfileButton user={user} />
+              </li>
+            </>
+          )}
+        </ul>
+      )}
     </nav>
-  );
+  )
 }
-
-export default Navigation;

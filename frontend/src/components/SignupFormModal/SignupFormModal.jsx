@@ -1,128 +1,51 @@
-import { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import * as sessionActions from '../../store/session';
-import { useModal } from '../../context/Modal';
-import './SignupForm.css';
+import React, { useState } from 'react'
+import { useDispatch } from 'react-redux'
+import { useModal } from '../../context/Modal'
+import * as sessionActions from '../../store/session'
+import "./SignupFormModal.css"
+import Loader from "../Loader" 
 
-function SignupFormModal() {
-  const dispatch = useDispatch();
-  const { closeModal } = useModal();
-  const [email, setEmail] = useState('');
-  const [username, setUsername] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false); // New loading state
+export default function SignupFormModal() {
+  const dispatch = useDispatch()
+  const { closeModal } = useModal()
+  const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPass, setConfirmPass] = useState('')
+  const [errors, setErrors] = useState({})
+  const [loading, setLoading] = useState(false)
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    if (password !== confirmPassword) {
-      return setErrors({
-        confirmPassword: "Confirm Password must match Password"
-      });
-    }
-
-    setErrors({});
-    setLoading(true); // Set loading to true when form is submitted
-
-    return dispatch(
-      sessionActions.signup({ email, username, firstName, lastName, password })
-    )
+  const handleSubmit = e => {
+    e.preventDefault()
+    if (password !== confirmPass) { setErrors({ confirmPass: 'Passwords must match' }); return }
+    setErrors({})
+    setLoading(true)
+    return dispatch(sessionActions.signup({ username, firstName, lastName, email, password }))
       .then(closeModal)
-      .catch(async (res) => {
-        const data = await res;
-        console.log(data);
-        if (data?.errors) setErrors(data.errors);
+      .catch(async res => {
+        const data = await res.json()
+        if (data.errors) setErrors(data.errors)
       })
-      .finally(() => {
-        setLoading(false); // Set loading back to false after the response is received
-      });
-  };
+      .finally(() => setLoading(false))
+  }
+
+  if (loading) return <Loader />
 
   return (
-    <div className="signup-form-container">
+    <div className="form-container">
       <h1>Sign Up</h1>
       <form onSubmit={handleSubmit}>
-        <label>
-          Email
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </label>
-        {errors.email && <p className="error">{errors.email}</p>}
-
-        <label>
-          Username
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
-        </label>
-        {errors.username && <p className="error">{errors.username}</p>}
-
-        <label>
-          First Name
-          <input
-            type="text"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-            required
-          />
-        </label>
-        {errors.firstName && <p className="error">{errors.firstName}</p>}
-
-        <label>
-          Last Name
-          <input
-            type="text"
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-            required
-          />
-        </label>
-        {errors.lastName && <p className="error">{errors.lastName}</p>}
-
-        <label>
-          Password
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </label>
-        {errors.password && <p className="error">{errors.password}</p>}
-
-        <label>
-          Confirm Password
-          <input
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-          />
-        </label>
-        {errors.confirmPassword && (
-          <p className="error">{errors.confirmPassword}</p>
-        )}
-
-        {/* Show loading spinner if loading is true */}
-        {loading ? (
-          <div className="loading-spinner"></div>
-        ) : (
-          <button type="submit">Sign Up</button>
-        )}
+        <label>Email<input value={email} onChange={e=>setEmail(e.target.value)} required/></label>
+        <label>Username<input value={username} onChange={e=>setUsername(e.target.value)} required/></label>
+        <label>First Name<input value={firstName} onChange={e=>setFirstName(e.target.value)} required/></label>
+        <label>Last Name<input value={lastName} onChange={e=>setLastName(e.target.value)} required/></label>
+        <label>Password<input type="password" value={password} onChange={e=>setPassword(e.target.value)} required/></label>
+        <label>Confirm Password<input type="password" value={confirmPass} onChange={e=>setConfirmPass(e.target.value)} required/></label>
+        <ul className="error-list">{Object.values(errors).map((err,i)=><li key={i}>{err}</li>)}</ul>
+        <button type="submit">Sign Up</button>
       </form>
     </div>
-  );
+  )
 }
-
-export default SignupFormModal;

@@ -1,8 +1,7 @@
-'use strict';
 
 let options = {};
 if (process.env.NODE_ENV === 'production') {
-  options.schema = process.env.SCHEMA; // e.g., 'public'
+  options.schema = process.env.SCHEMA;
 }
 
 module.exports = {
