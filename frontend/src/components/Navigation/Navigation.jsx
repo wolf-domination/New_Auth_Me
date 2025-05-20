@@ -12,7 +12,7 @@ export default function Navigation({ isLoaded }) {
   const user = useSelector(s => s.session.user)
   return (
     <nav className="nav">
-      <NavLink to="/" className="nav-logo">Logo</NavLink>
+      <NavLink to="/" className="nav-logo">Jordan-bnb</NavLink>
       {isLoaded && (
         <ul className="nav-links">
           {!user ? (
