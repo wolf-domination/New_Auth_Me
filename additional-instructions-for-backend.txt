@@ -1,4 +1,4 @@
-Working on css for frontend
+Working on css for frontend.
 
 
 Note: The .env file dissapears everytime this project is downloaded from the repository.  Create the .env file within the backend folder.  Add this to it 'JWT_SECRET=your-secret-key-here
