@@ -1,4 +1,8 @@
-Working on css for frontend.
+What I must do in addition. 
+[
+Working on css for frontend. 
+Must fix database for login users sometimes it's faulty.
+]
 
 
 Note: The .env file dissapears everytime this project is downloaded from the repository.  Create the .env file within the backend folder.  Add this to it 'JWT_SECRET=your-secret-key-here
