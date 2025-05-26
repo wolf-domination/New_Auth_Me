@@ -1,1 +1,32 @@
 /* TODO: Add sitewide styles */
+:root {
+  /* Blue palette */
+  --color-primary: #2563eb;         /* Main blue */
+  --color-primary-dark: #1e40af;    /* Darker blue */
+  --color-primary-light: #60a5fa;   /* Lighter blue */
+  --color-accent: #38bdf8;          /* Accent sky blue */
+  --color-accent-dark: #0ea5e9;     /* Deeper accent */
+  --color-bg-main: #f0f6ff;         /* Very light blue background */
+  --color-bg-light: #fff;
+  --color-border: #dbeafe;          /* Light blue border */
+  --color-border-dark: #93c5fd;     /* Medium blue border */
+  --color-shadow: rgba(37,99,235,0.08);
+
+  /* Text */
+  --color-text: #1e293b;
+  --color-text-light: #64748
+  --color-text-muted: #94a3b8;
+
+  /* UI States */
+  --color-success: #22d3ee;
+  --color-warning: #fbbf24;
+  --color-error: #ef4444;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-bg-main);
+  color: var(--color-text);
+}

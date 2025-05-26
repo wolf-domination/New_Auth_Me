@@ -1,44 +1,36 @@
-// frontend/src/components/ReviewFormModal/ReviewFormModal.jsx
-import React, { useState } from 'react'
-import { useModal } from '../../context/Modal'
-import { csrfFetch } from '../../store/csrf'
-import './ReviewFormModal.css'
-import { useNavigate } from 'react-router-dom'
+import React, { useState } from 'react';
+import { useModal }          from '../../context/Modal';
+import { csrfFetch }         from '../../store/csrf';
+import './ReviewFormModal.css';
 
 export default function ReviewFormModal({ spotId, onReviewAdded }) {
-  const { closeModal } = useModal()
-  const [comment, setComment] = useState('')
-  const navigate = useNavigate()
-  const [stars, setStars]     = useState(0)
-  const [errors, setErrors]   = useState(null)
-    const [isLoading, setIsLoading] = useState(false)   
+  const { closeModal } = useModal();
+  const [comment, setComment] = useState('');
+  const [stars, setStars]     = useState(0);
+  const [errors, setErrors]   = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const isValid = comment.length >= 10 && stars > 0
+  const isValid = comment.length >= 10 && stars > 0;
 
   const handleSubmit = async e => {
-    e.preventDefault()
-    setErrors(null)
-    setIsLoading(true)
+    e.preventDefault();
+    setErrors(null);
+    setIsLoading(true);
     try {
       const res = await csrfFetch(`/api/spots/${spotId}/reviews`, {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ review: comment, stars })
-      })
-      if (!res.ok) {
-        const data = await res.json()
-        setErrors(data.message || 'Error submitting review')
-        return
-      }
-      const newReview = await res.json()
-      onReviewAdded(newReview)
-      closeModal()
-        navigate(`/spots/${spotId}`)
-    } catch {
-      setErrors('Internal error')
+      });
+      const newReview = await res.json();
+      await onReviewAdded(newReview);
+      closeModal();
+    } catch (err) {
+      setErrors(err.message || 'Error submitting review');
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="review-modal">
@@ -64,5 +56,5 @@ export default function ReviewFormModal({ spotId, onReviewAdded }) {
         </button>
       </form>
     </div>
-  )
+  );
 }

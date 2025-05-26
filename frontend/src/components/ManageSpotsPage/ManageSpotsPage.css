@@ -1,11 +1,112 @@
-.manage-container { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
-.manage-container h1 { text-align: center; margin-bottom: 20px; }
-.create-link { display: inline-block; margin: 20px 0; color: #007bff; text-decoration: none; font-weight: 500; }
-.spots-list { display: grid; grid-template-columns: repeat(auto-fill,minmax(240px,1fr)); gap: 20px; }
-.spot-card { border: 1px solid #ddd; border-radius: 4px; overflow: hidden; cursor: pointer; display: flex; flex-direction: column; }
-.spot-thumb { width: 100%; height: 160px; object-fit: cover; }
-.spot-info { display: flex; justify-content: space-between; padding: 8px; font-size: 0.95rem; }
-.spot-price { padding: 0 8px 8px; font-weight: bold; }
-.spot-actions { display: flex; justify-content: space-around; padding: 8px; background: #f9f9f9; }
-.spot-actions button { padding: 6px 12px; border: none; background: #007bff; color: #fff; border-radius: 4px; cursor: pointer; }
-.spot-actions button:hover { background: #0056b3; }
+/* Container */
+.manage-spots-container {
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+.manage-spots-container h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: var(--color-text);
+}
+
+/* Create button */
+.manage-create-link {
+  display: inline-block;
+  margin: 20px 0;
+  font-weight: 500;
+  color: var(--color-primary);
+  text-decoration: none;
+  padding: 8px 16px;
+  border: 1px solid var(--color-primary);
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+.manage-create-link:hover {
+  background: var(--color-primary-light);
+}
+
+/* Grid of cards */
+.manage-spots-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+/* Card */
+.manage-spot-card {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 16px;
+  background: var(--color-bg-light);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.manage-spot-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px var(--color-shadow);
+}
+
+/* Thumbnail */
+.manage-spot-thumb {
+  width: 35%;
+  height: 200px;
+  object-fit: cover;
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+
+/* Details container */
+.manage-spot-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 16px;
+  gap: 12px;
+}
+
+/* Info */
+.manage-spot-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  /* padding: 16px; */ /* Removed padding as it now lives in details container */
+  font-size: 0.95rem;
+}
+.manage-spot-info .rating {
+  color: var(--color-accent-dark);
+  font-weight: bold;
+}
+
+/* Price */
+.manage-spot-price {
+  font-weight: bold;
+  color: var(--color-primary-dark);
+}
+
+/* Actions */
+.manage-spot-actions {
+  display: flex;
+  justify-content: space-around;
+  padding: 12px;
+  background: var(--color-bg-main);
+  border-top: 1px solid var(--color-border);
+}
+.manage-spot-actions button {
+  padding: 6px 12px;
+  border: none;
+  background: var(--color-accent);
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.manage-spot-actions button:hover {
+  background: var(--color-accent-dark);
+}

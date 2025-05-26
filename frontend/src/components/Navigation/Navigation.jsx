@@ -1,5 +1,5 @@
 import React from 'react'
-import { NavLink } from 'react-router-dom'
+import { Link, NavLink } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import ProfileButton from './ProfileButton'
 import OpenModalButton from '../OpenModalButton/OpenModalButton'
@@ -28,6 +28,9 @@ export default function Navigation({ isLoaded }) {
             <>
               <li>
                 <OpenModalButton buttonText="Create a New Spot" modalComponent={<CreateSpotModal />} />
+              </li>
+              <li>
+                <Link to="/bookings/manage">Manage Bookings</Link>
               </li>
               <li>
                 <ProfileButton user={user} />

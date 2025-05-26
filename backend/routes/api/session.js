@@ -1,6 +1,3 @@
-
-
-
 // backend/routes/api/session.js
 const express = require('express');
 const { Op } = require('sequelize');
@@ -115,5 +112,3 @@ router.get(
 
 
 module.exports = router;
-
-

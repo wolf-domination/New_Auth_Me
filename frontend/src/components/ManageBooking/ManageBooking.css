@@ -1,0 +1,51 @@
+.manage-booking-container {
+  max-width: 1000px;
+  margin: 32px auto;
+  padding: 0 24px;
+}
+
+.booking-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.booking-item {
+  display: flex;
+  align-items: center;
+  background: var(--color-bg-light);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.booking-image {
+  width: 160px;
+  height: 100px;
+  background-size: cover;
+  background-position: center;
+  flex-shrink: 0;
+}
+
+.booking-details {
+  flex: 1;
+  padding: 12px 16px;
+}
+
+.booking-details h2 {
+  margin: 0 0 8px;
+  font-size: 1.1rem;
+  color: var(--color-text);
+}
+
+.booking-details p {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.booking-actions {
+  display: flex;
+  gap: 8px;
+  padding: 0 16px;
+}

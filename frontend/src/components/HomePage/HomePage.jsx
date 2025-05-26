@@ -1,69 +1,66 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { csrfFetch } from '../../store/csrf'
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchSpots } from '../../store/spots'
+import { fetchReviews } from '../../store/review';
 import './HomePage.css'
 import Loader from '../Loader'
 
 export default function HomePage() {
-  const [spots, setSpots] = useState([])
-  const [loading, setLoading] = useState(true)
+  const dispatch = useDispatch()
+  const spots = useSelector(state => state.spots.list)
+  const loading = useSelector(state => state.spots.loading)
+  const reviewsBySpot = useSelector(state => state.reviews.bySpot);
 
   useEffect(() => {
-    async function load() {
-      
-      const res      = await csrfFetch('/api/spots?page=1&size=20')
-      if (!res.ok) return
-      const data     = await res.json()
-      const enriched = await Promise.all(
-        data.spots.map(async spot => {
-          const revRes = await csrfFetch(`/api/spots/${spot.id}/reviews`)
-          let avg       = 'New'
-          if (revRes.ok) {
-            const { Reviews } = await revRes.json()
-            if (Reviews.length) {
-              const total = Reviews.reduce((sum, r) => sum + r.stars, 0)
-              avg = (total / Reviews.length).toFixed(1)
-            }
-          }
-          return { ...spot, avgRating: avg }
-        })
-      )
-      setSpots(enriched)
-      setLoading(false)
-    }
-    load()
-  }, [])
+    dispatch(fetchSpots({ page: 1, size: 20 }))
+  }, [dispatch])
+
+  useEffect(() => {
+    spots.forEach(spot => {
+      dispatch(fetchReviews(spot.id));
+    });
+  }, [dispatch, spots]);
 
   if (loading) return <Loader />
 
   return (
     <div className="home-container">
       <div className="spots-grid">
-        {spots.map(spot => (
-          <Link
-            key={spot.id}
-                       to={`/spots/${spot.id}`}
-            className="spot-card"
-            title={spot.name}
-          >
-            <div
-              className="spot-image"
-              style={{ backgroundImage: `url(${spot.SpotImages?.[0]?.url})` }}
-            ></div>
-            <div className="spot-info">
-              <div>
-                <h3>{spot.name}</h3>
-                <p>{spot.city}, {spot.state}</p>
+        {spots.map(spot => {
+          const revs = reviewsBySpot?.[spot.id] || [];
+          const avg = revs.length
+            ? (revs.reduce((sum, r) => sum + r.stars, 0) / revs.length).toFixed(1)
+            : 'New';
+          return (
+            <Link
+              key={spot.id}
+              to={`/spots/${spot.id}`}
+              className="spot-card"
+              title={spot.name}
+            >
+              <div className="spot-image">
+                <img
+                  src={spot.SpotImages?.find(img => img.preview)?.url || ''}
+                  alt={spot.name}
+                  className="spot-thumb"
+                />
               </div>
-              <div className="spot-meta">
-                <span className="rating">
-                  {spot.avgRating === 'New' ? 'New' : `⭐ ${spot.avgRating}`}
-                </span>
-                <span className="price">${spot.price}/night</span>
+              <div className="spot-info">
+             
+                  <h3>{spot.name}</h3>
+                  <p>{spot.city}, {spot.state}</p>
+                  <div className="spot-meta">
+                    <span className="rating">
+                      {avg === 'New' ? 'New' : `⭐ ${avg}`}
+                    </span>
+                    <span className="price">${spot.price}/night</span>
+                  </div>
+             
               </div>
-            </div>
-          </Link>
-        ))}
+            </Link>
+          );
+        })}
       </div>
     </div>
   )

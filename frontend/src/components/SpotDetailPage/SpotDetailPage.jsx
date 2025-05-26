@@ -1,73 +1,61 @@
-// frontend/src/components/SpotDetailPage/SpotDetailPage.jsx
-
-import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { useSelector } from 'react-redux'
-import { csrfFetch } from '../../store/csrf'
-import { useModal } from '../../context/Modal'
-import ReviewFormModal from '../ReviewFormModal/ReviewFormModal'
-import ConfirmModal from '../ConfirmModal/ConfirmModal'
-import './SpotDetailPage.css'
-import Loader from '../Loader'
+import React, { useEffect, useState } from 'react';
+import { useParams }           from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import Loader                  from '../Loader';
+import { useModal }            from '../../context/Modal';
+import ReviewFormModal         from '../ReviewFormModal/ReviewFormModal';
+import ConfirmModal            from '../ConfirmModal/ConfirmModal';
+import BookingModal            from '../BookingModal/BookingModal';
+import OpenModalButton         from '../OpenModalButton/OpenModalButton';
+import './SpotDetailPage.css';
+import { fetchSpotDetail, clearSpot }   from '../../store/spots';
+import { fetchReviews, removeReview, addReviewAction } from '../../store/review';
 
 export default function SpotDetailPage() {
-   const { id } = useParams()
-  const sessionUser = useSelector(state => state.session.user)
-  const { setModalContent } = useModal()
+  const { id: spotId } = useParams();
+  const dispatch       = useDispatch();
+  const { setModalContent } = useModal();
+  const [posting, setPosting] = useState(false);
 
-  const [spot, setSpot]         = useState(null)
-  const [reviews, setReviews]   = useState(null)   // start null
-  const [avgStars, setAvgStars] = useState(null)
+  const spot           = useSelector(state => state.spots.current);
+  const rawReviews     = useSelector(state => state.reviews.bySpot?.[spotId]);
+  const reviews        = Array.isArray(rawReviews) ? rawReviews : [];
+  const loadingSpot    = useSelector(state => state.spots.loading);
+  const loadingReviews = useSelector(state => state.reviews.loading);
+  const sessionUser    = useSelector(state => state.session.user);
 
   useEffect(() => {
-    async function fetchData() {
-      const [spotRes, revRes] = await Promise.all([
-        csrfFetch(`/api/spots/${id}`),
-        csrfFetch(`/api/spots/${id}/reviews`)
-      ])
+    dispatch(fetchSpotDetail(spotId));
+    dispatch(fetchReviews(spotId));
+    return () => { dispatch(clearSpot()); };
+  }, [dispatch, spotId]);
 
-      const spotData = await spotRes.json()
-      const revData  = await revRes.json()
-      setSpot(spotData)
-      setReviews(revData.Reviews)
+  if (loadingSpot || loadingReviews || posting || !spot) {
+    return <Loader />;
+  }
 
-      if (revData.Reviews.length > 0) {
-        const total = revData.Reviews.reduce((sum, r) => sum + r.stars, 0)
-        setAvgStars(total / revData.Reviews.length)
-      }
-    }
-    fetchData()
-  }, [id])
-
-  // show loader until both spot + reviews have arrived
-  if (!spot || reviews === null) return <Loader />
-  // Don't render until we have both spot and its owner data
-  if (!spot || !spot.Owner) return null
-
-  const isOwner     = sessionUser?.id === spot.Owner.id
-  const hasReviewed = sessionUser && reviews.some(r => r.userId === sessionUser.id)
-  const canPost     = sessionUser && !isOwner && !hasReviewed
+  const isOwner     = sessionUser?.id === spot.ownerId;
+  const hasReviewed = sessionUser && reviews.some(r => r?.userId === sessionUser.id);
+  const canPost     = sessionUser && !isOwner && !hasReviewed;
 
   const handleNewReview = newReview => {
-    const updated = [newReview, ...reviews]
-    setReviews(updated)
-    const total = updated.reduce((sum, r) => sum + r.stars, 0)
-    setAvgStars(total / updated.length)
-  }
+    setPosting(true);
+    dispatch(addReviewAction(spotId, newReview));
+    setPosting(false);
+  };
 
-  const handleDelete = deletedId => {
-    const updated = reviews.filter(r => r.id !== deletedId)
-    setReviews(updated)
-    if (updated.length > 0) {
-      const total = updated.reduce((sum, r) => sum + r.stars, 0)
-      setAvgStars(total / updated.length)
-    } else {
-      setAvgStars(null)
-    }
-  }
+  const handleDelete = async reviewId => {
+    setPosting(true);
+    await dispatch(removeReview({ spotId, reviewId }));
+    setPosting(false);
+  };
 
-  const previewImg = spot.SpotImages.find(img => img.preview)
-  const smallImgs  = spot.SpotImages.filter(img => !img.preview)
+  const avgStars = reviews.length
+    ? reviews.reduce((sum, r) => sum + (r.stars || 0), 0) / reviews.length
+    : null;
+
+  const previewImg = spot.SpotImages?.find(img => img.preview);
+  const smallImgs  = spot.SpotImages?.filter(img => !img.preview) || [];
 
   return (
     <div className="detail-container">
@@ -84,9 +72,9 @@ export default function SpotDetailPage() {
           />
         )}
         <div className="small-images">
-          {smallImgs.slice(0, 4).map((img, idx) => (
+          {smallImgs.slice(0,4).map(img => (
             <div
-              key={idx}
+              key={img.id}
               className="small-image"
               style={{ backgroundImage: `url(${img.url})` }}
             />
@@ -95,27 +83,38 @@ export default function SpotDetailPage() {
       </div>
 
       <div className="detail-main">
+        <div className="reservation-box">
+          <div className="price">
+            ${spot.price}/<span>night</span>
+          </div>
+         
+          {sessionUser && !isOwner && (
+            <OpenModalButton
+              buttonText="Reserve"
+              modalComponent={
+                <BookingModal
+                  spotId={spotId}
+                  onBookingMade={() => {}}
+                />
+              }
+            />
+          )}
+          {sessionUser && isOwner && (
+            <h3>You own this !</h3>
+          )}
+        </div>
         <div className="description-section">
           <h2>
-            Hosted by {spot.Owner.firstName} {spot.Owner.lastName}
+            Hosted by {spot.Owner?.firstName} {spot.Owner?.lastName}
           </h2>
           <p>{spot.description}</p>
         </div>
-        <div className="reservation-box">
-          <div className="price">
-            ${spot.price} <span>night</span>
-          </div>
-          <button onClick={() => alert('Feature coming soon')}>
-            Reserve
-          </button>
-        </div>
+
       </div>
 
       <div className="reviews-section">
         <div className="rating-header">
-          <span>
-            {avgStars !== null ? avgStars.toFixed(1) : 'New'} ★
-          </span>
+          <span>{avgStars ? avgStars.toFixed(1) : 'New'} ★</span>
           <span>
             {reviews.length} {reviews.length === 1 ? 'Review' : 'Reviews'}
           </span>
@@ -126,10 +125,7 @@ export default function SpotDetailPage() {
             className="post-review-btn"
             onClick={() =>
               setModalContent(
-                <ReviewFormModal
-                  spotId={spot.id}
-                  onReviewAdded={handleNewReview}
-                />
+                <ReviewFormModal spotId={spotId} onReviewAdded={handleNewReview} />
               )
             }
           >
@@ -143,21 +139,27 @@ export default function SpotDetailPage() {
         <ul className="reviews-list">
           {reviews.map(r => (
             <li key={r.id} className="review">
-              <strong>{r.User?.firstName || 'User'}</strong>
-              <span>{r.stars} ★</span>
-              <p>{r.review}</p>
+              <div className="review-content">
+                <strong>
+                  {r.User
+                    ? `${r.User.firstName} ${r.User.lastName}`
+                    : 'Unknown'}
+                </strong>
+                <span>{r.stars} ★</span>
+                <p>{r.review}</p>
+              </div>
               {sessionUser?.id === r.userId && (
                 <button
                   className="delete-review-btn"
                   onClick={e => {
-                    e.stopPropagation()
+                    e.stopPropagation();
                     setModalContent(
                       <ConfirmModal
-                        spotId={spot.id}
+                        spotId={spotId}
                         reviewId={r.id}
                         onConfirm={handleDelete}
                       />
-                    )
+                    );
                   }}
                 >
                   Delete
@@ -168,5 +170,5 @@ export default function SpotDetailPage() {
         </ul>
       </div>
     </div>
-  )
+  );
 }

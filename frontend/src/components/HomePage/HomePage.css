@@ -1,59 +1,83 @@
 .home-container {
-  padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
+  padding: 20px;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background-color: var(--color-bg-main);
 }
+
 .spots-grid {
   display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
   gap: 20px;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 }
+
 .spot-card {
-  display: flex;
-  flex-direction: row;
-  background: #cec9fd;
-  border: 2px solid #16144f;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center;
+  background-color:var(--color-border-dark);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 2px 8px var(--color-shadow);
   border-radius: 8px;
   overflow: hidden;
   text-decoration: none;
-  color: inherit;
-  transition: transform 0.2s;
+  color: var(--color-primary);
+  transition: box-shadow 0.2s;
 }
 .spot-card:hover {
-  transform: scale(1.02);
+  box-shadow: 0 6px 16px var(--color-shadow);
 }
+
 .spot-image {
-  width: 100%;
-  padding-top: 56.25%;
-  background-size: cover;
-  background-position: center;
+  flex: 0 0 300px !important;
+  height: 150px;
+  overflow: hidden;
+  border-right: 4px solid var(--color-primary-light);
 }
+.spot-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .spot-info {
+  flex: 1 1 auto !important;
+  padding: 16px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 16px;
-  flex-grow: 1;
+  
 }
+
 .spot-info h3 {
   margin: 0 0 8px;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
+  color: var(--color-primary-dark);
 }
 .spot-info p {
-  margin: 0;
-  color: #555;
-  font-size: 0.9rem;
+  margin: 0 0 12px;
+  color: var(--color-text);
 }
+
 .spot-meta {
   display: flex;
-  justify-content: space-between;
-  margin-top: 12px;
+  flex-direction: column;
+  gap: 10px;
   font-weight: 500;
 }
 .rating {
   display: flex;
   align-items: center;
+  color: var(--color-text);
 }
 .price {
-  color: #333;
+  color: var(--color-primary);
+  font-weight: 600;
+}
+.spot-thumb {
+  transition: transform 0.2s ease-in-out;
+}
+.spot-thumb:hover {
+  transform: scale(1.05);
 }
