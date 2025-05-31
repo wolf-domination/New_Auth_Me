@@ -3,7 +3,7 @@ What I must do in addition.
 Working on css for frontend. 
 Must fix database for login users sometimes it's faulty.
 ]
-
+//Added bookings
 
 Note: The .env file dissapears everytime this project is downloaded from the repository.  Create the .env file within the backend folder.  Add this to it 'JWT_SECRET=your-secret-key-here
 JWT_EXPIRES_IN=1h  # Or any duration you need
