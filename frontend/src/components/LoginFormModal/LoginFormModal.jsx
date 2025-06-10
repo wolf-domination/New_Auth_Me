@@ -16,6 +16,7 @@ export default function LoginFormModal() {
 
   // Check form validation whenever credential or password changes
   useEffect(() => {
+
     setIsFormValid(
       credential.length >= 4 && password.length >= 6
     )
@@ -23,6 +24,8 @@ export default function LoginFormModal() {
 
   const handleSubmit = e => {
     e.preventDefault()
+
+
     setErrors({})
     setLoading(true)
     return dispatch(sessionActions.login({ credential, password }))
@@ -70,8 +73,9 @@ export default function LoginFormModal() {
         <ul className="error-list">{Object.values(errors).map((err,i)=><li key={i}>{err}</li>)}</ul>
         <button 
           type="submit" 
-          disabled={true}
+          disabled={!isFormValid}
           className={isFormValid ? "" : "disabled"}
+        
         >
           Log In
         </button>
