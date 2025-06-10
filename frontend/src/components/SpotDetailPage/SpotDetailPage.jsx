@@ -84,8 +84,18 @@ export default function SpotDetailPage() {
 
       <div className="detail-main">
         <div className="reservation-box">
-          <div className="price">
-            ${spot.price}/<span>night</span>
+          <div className="price-rating-row">
+            <div className="price">
+              ${spot.price}/<span>night</span>
+            </div>
+            <div className="rating-summary">
+              <span>★ {avgStars ? avgStars.toFixed(1) : 'New'}</span>
+              {reviews.length > 0 && (
+                <span className="review-count">
+                  · {reviews.length} {reviews.length === 1 ? 'review' : 'reviews'}
+                </span>
+              )}
+            </div>
           </div>
          
           {sessionUser && !isOwner && (
@@ -109,7 +119,6 @@ export default function SpotDetailPage() {
           </h2>
           <p>{spot.description}</p>
         </div>
-
       </div>
 
       <div className="reviews-section">

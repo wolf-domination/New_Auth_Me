@@ -63,6 +63,8 @@ export default function CreateSpotModal({ spot = null }) {
       return
     }
 
+
+
     const payload = {
       address,
       city,
@@ -97,87 +99,140 @@ export default function CreateSpotModal({ spot = null }) {
     <div className="create-spot-container">
       <h1>{spot ? 'Update Spot' : 'Create a New Spot'}</h1>
       <form onSubmit={handleSubmit} className="create-spot-form">
-        <ul className="error-list">
-          {Object.values(errors).map((err, i) => (
-            <li key={i}>{err}</li>
-          ))}
-        </ul>
+        {/* Keep the error list at the top */}
+        {Object.keys(errors).length > 0 && (
+          <div className="error-summary">
+            <h3>Please fix the following errors:</h3>
+            <ul className="error-list">
+              {Object.values(errors).map((err, i) => (
+                <li key={i}>{err}</li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <section className="form-section">
           <h2>Wheres your place located?</h2>
-          <input
-            value={country}
-            onChange={e => setCountry(e.target.value)}
-            placeholder="Country"
-          />
-          <input
-            value={address}
-            onChange={e => setAddress(e.target.value)}
-            placeholder="Street Address"
-          />
-          <input
-            value={city}
-            onChange={e => setCity(e.target.value)}
-            placeholder="City"
-          />
-          <input
-            value={stateVal}
-            onChange={e => setStateVal(e.target.value)}
-            placeholder="State"
-          />
-          <input
-            type="number" step="any"
-            value={lat}
-            onChange={e => setLat(e.target.value)}
-            placeholder="Latitude (optional)"
-          />
-          <input
-            type="number" step="any"
-            value={lng}
-            onChange={e => setLng(e.target.value)}
-            placeholder="Longitude (optional)"
-          />
+          <div className="input-group">
+            <input
+              value={country}
+              onChange={e => setCountry(e.target.value)}
+              placeholder="Country"
+              className={errors.country ? 'input-error' : ''}
+            />
+            {errors.country && <p className="field-error">{errors.country}</p>}
+          </div>
+          
+          <div className="input-group">
+            <input
+              value={address}
+              onChange={e => setAddress(e.target.value)}
+              placeholder="Street Address"
+              className={errors.address ? 'input-error' : ''}
+            />
+            {errors.address && <p className="field-error">{errors.address}</p>}
+          </div>
+          
+          <div className="input-group">
+            <input
+              value={city}
+              onChange={e => setCity(e.target.value)}
+              placeholder="City"
+              className={errors.city ? 'input-error' : ''}
+            />
+            {errors.city && <p className="field-error">{errors.city}</p>}
+          </div>
+          
+          <div className="input-group">
+            <input
+              value={stateVal}
+              onChange={e => setStateVal(e.target.value)}
+              placeholder="State"
+              className={errors.state ? 'input-error' : ''}
+            />
+            {errors.state && <p className="field-error">{errors.state}</p>}
+          </div>
+          
+          <div className="input-group">
+            <input
+              type="number" 
+              step="any"
+              value={lat}
+              onChange={e => setLat(e.target.value)}
+              placeholder="Latitude (optional)"
+              className={errors.lat ? 'input-error' : ''}
+            />
+            {errors.lat && <p className="field-error">{errors.lat}</p>}
+          </div>
+          
+          <div className="input-group">
+            <input
+              type="number" 
+              step="any"
+              value={lng}
+              onChange={e => setLng(e.target.value)}
+              placeholder="Longitude (optional)"
+              className={errors.lng ? 'input-error' : ''}
+            />
+            {errors.lng && <p className="field-error">{errors.lng}</p>}
+          </div>
         </section>
 
         <section className="form-section">
           <h2>Describe your place to guests</h2>
-          <textarea
-            value={description}
-            onChange={e => setDescription(e.target.value)}
-            placeholder="Please write at least 30 characters"
-          />
+          <div className="input-group">
+            <textarea
+              value={description}
+              onChange={e => setDescription(e.target.value)}
+              placeholder="Please write at least 30 characters"
+              className={errors.description ? 'input-error' : ''}
+            />
+            {errors.description && <p className="field-error">{errors.description}</p>}
+          </div>
         </section>
 
         <section className="form-section">
           <h2>Create a title for your spot</h2>
-          <input
-            value={name}
-            onChange={e => setName(e.target.value)}
-            placeholder="Name of your spot"
-          />
+          <div className="input-group">
+            <input
+              value={name}
+              onChange={e => setName(e.target.value)}
+              placeholder="Name of your spot"
+              className={errors.name ? 'input-error' : ''}
+            />
+            {errors.name && <p className="field-error">{errors.name}</p>}
+          </div>
         </section>
 
         <section className="form-section">
           <h2>Set a base price for your spot</h2>
-          <input
-            type="number"
-            value={price}
-            onChange={e => setPrice(e.target.value)}
-            placeholder="Price per night (USD)"
-          />
+          <div className="input-group">
+            <input
+              type="number"
+              value={price}
+              onChange={e => setPrice(e.target.value)}
+              placeholder="Price per night (USD)"
+              className={errors.price ? 'input-error' : ''}
+            />
+            {errors.price && <p className="field-error">{errors.price}</p>}
+          </div>
         </section>
 
         <section className="form-section">
           <h2>Liven up your spot with photos</h2>
-          <input
-            value={previewImage}
-            onChange={e => setPreviewImage(e.target.value)}
-            placeholder="Preview Image URL"
-          />
+          <div className="input-group">
+            <input
+              value={previewImage}
+              onChange={e => setPreviewImage(e.target.value)}
+              placeholder="Preview Image URL"
+              className={errors.previewImage ? 'input-error' : ''}
+            />
+            {errors.previewImage && <p className="field-error">{errors.previewImage}</p>}
+          </div>
         </section>
 
         <button type="submit" className="submit-btn">
-            {isLoading ? 'Loading...' : spot ? 'Update Spot' : 'Create Spot'}
+          {isLoading ? 'Loading...' : spot ? 'Update Spot' : 'Create Spot'}
         </button>
       </form>
     </div>

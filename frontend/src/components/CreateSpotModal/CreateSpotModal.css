@@ -101,3 +101,8 @@ textarea {
     width: 100%;
   }
 }
+
+.input-group p{
+  color: red;
+}
+

@@ -1,18 +1,21 @@
 import React, { useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchUserSpots, deleteSpot } from '../../store/spots';
+import { fetchUserSpots } from '../../store/spots';
 import { useModal } from '../../context/Modal'
 import CreateSpotModal from '../CreateSpotModal/CreateSpotModal'
 import './ManageSpotsPage.css'
+import ConfirmDeleteSpotModal from '../ConfirmDeleteSpotModal/ConfirmDeleteSpotModal.jsX';
 
 export default function ManageSpotsPage() {
   const dispatch = useDispatch();
   const spots = useSelector(state => state.spots.userList);
   const loading = useSelector(state => state.spots.loading);
   const { setModalContent, setOnModalClose } = useModal();
+  
   useEffect(() => {
     dispatch(fetchUserSpots());
   }, [dispatch]);
+  
   if (loading) return <div className="manage-spots-container">Loading...</div>;
 
   return (
@@ -51,10 +54,13 @@ export default function ManageSpotsPage() {
                       Update
                     </button>
                     <button
-                      onClick={() => dispatch(deleteSpot(spot.id))}
-                      disabled={loading}
+                      onClick={() => {
+                        setModalContent(
+                          <ConfirmDeleteSpotModal spotId={spot.id} />
+                        );
+                      }}
                     >
-                      {loading ? 'Deleting...' : 'Delete'}
+                      Delete
                     </button>
                   </div>
                 </div>

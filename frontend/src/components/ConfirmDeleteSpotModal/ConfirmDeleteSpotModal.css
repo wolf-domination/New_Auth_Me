@@ -1,0 +1,57 @@
+.confirm-delete-modal {
+    background: white;
+    border-radius: 10px;
+    padding: 24px;
+    width: 400px;
+    max-width: 100%;
+  }
+  
+  .confirm-delete-modal h2 {
+    margin-top: 0;
+    color: var(--color-text);
+    font-size: 1.5rem;
+  }
+  
+  .confirm-delete-modal p {
+    margin-bottom: 16px;
+    color: var(--color-text-light);
+  }
+  
+  .confirm-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+  }
+  
+  .confirm-buttons button {
+    flex: 1;
+    padding: 10px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  
+  .btn-danger {
+    background-color: var(--color-error, #e53e3e);
+    color: white;
+  }
+  
+  .btn-danger:hover {
+    background-color: #c53030;
+  }
+  
+  .btn-cancel {
+    background-color: var(--color-border, #e2e8f0);
+    color: var(--color-text, #333);
+  }
+  
+  .btn-cancel:hover {
+    background-color: #cbd5e0;
+  }
+  
+  button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
